@@ -1,6 +1,6 @@
 declare namespace Adonis {
     type WorkInProgress = any
-   
+
     class Config {
         syncWithFileSystem(): void
         get(key: string, defaultValue?: any): any
@@ -90,7 +90,7 @@ declare namespace Adonis {
         alert(message: string, ...options: any[]): void
         emerg(message: string, ...options: any[]): void
     }
-    
+
     namespace Lucid {
         interface ConstructableModel<t> extends Model{
           new(): t
@@ -255,7 +255,7 @@ declare namespace Adonis {
     class Server {
         registerGlobal(middleware: string[]): Server
         use(middleware: string[]): Server
-        registerNamed(middleware: string[]): Server
+        registerNamed(middleware: {[key:string]:string}): Server
         getInstance(): HttpServer
         setInstance(httpInstance: HttpServer): void
         handle(req: any, res: any): void
