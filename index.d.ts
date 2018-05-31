@@ -1,5 +1,5 @@
 declare namespace Adonis {
-    type WorkInProgress = null
+    type WorkInProgress = any
 
     class Config {
         syncWithFileSystem(): void
@@ -15,9 +15,95 @@ declare namespace Adonis {
         set(key: string, value: any): void
     }
 
+    type EventListeners = string | string[] | Function
+
+    class Event {
+        getListeners(event: string): Array<string | Function>
+        getListenersAny(): Array<string | Function>
+        hasListeners(event: string): boolean
+        listenersCount(event: string): number
+        times(number: number): Event
+        on(event: string, listeners: EventListeners): void
+        when(event: string, listeners: EventListeners): void
+        once(event: string, listeners: EventListeners): void
+        any(listeners: EventListeners): void
+        onAny(listeners: EventListeners): void
+        emit(event: string, ...args: any[]): void
+        fire(event: string, ...args: any[]): void
+        off(event: string, listeners: EventListeners): void
+        offAny(listeners: EventListeners): void
+        removeListener(event: string, listeners: EventListeners): void
+        removeAllListeners(event: string): void
+        setMaxListeners(number: number): void
+        fake(): void
+        restore(): void
+    }
+
+    class Encryption {
+        encrypt(input: string | number | Object): string
+        decrypt(cipherText: string): string | number | Object
+        base64Encode(input: string): string
+        base64Decode(encodedText: string): string
+        // base64Decode(encodedText: NodeBuffer): string
+    }
+
+    type ExceptionHandler = (error: any, ctx: Http.Context) => void
+
+    class Exception {
+        clear(): void
+        getHandler(name: string): Function | undefined
+        getReporter(name: string): Function | undefined
+        handle(name: string, callback: ExceptionHandler): Exception
+        handle(name: string, callback: ExceptionHandler): Exception
+    }
+
     class Hash {
         make(value: string, rounds: number): Promise<string>
         verify(value: string, hash: string): Promise<boolean>
+    }
+
+    class Helpers {
+        configPath(): string
+        appRoot(toFile?: ''): string
+        publicPath(toFile?: ''): string
+        resourcesPath(toFile?: ''): string
+        viewsPath(toFile?: ''): string
+        databasePath(toFile?: ''): string
+        migrationsPath(toFile?: ''): string
+        seedsPath(toFile?: ''): string
+        tmpPath(toFile?: ''): string
+        promisify(fn: Function, options: Object): Promise<any>
+        isAceCommand(): boolean
+    }
+
+    type LogLevel = 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7
+
+    class Logger {
+        level: LogLevel
+        log(level: LogLevel, message: string, ...options: any[]): void
+        debug(message: string, ...options: any[]): void
+        info(message: string, ...options: any[]): void
+        notice(message: string, ...options: any[]): void
+        warning(message: string, ...options: any[]): void
+        error(message: string, ...options: any[]): void
+        crit(message: string, ...options: any[]): void
+        alert(message: string, ...options: any[]): void
+        emerg(message: string, ...options: any[]): void
+    }
+
+    namespace Lucid {
+        interface ConstructableModel<t> extends Model{
+          new(): t
+        }
+
+        interface Model {
+           new(): Model
+           save(): Object
+           all(): Object
+           boot(): any
+           addHook(action: string, callback: string): any
+           hasMany(path: string): Object
+        }
     }
 
     namespace Http {
@@ -97,6 +183,7 @@ declare namespace Adonis {
             request: Adonis.Http.Request
             response: Adonis.Http.Response
             view: Adonis.View
+            session: Adonis.Session
         }
 
         type Handler = (ctx: Context) => any
@@ -163,6 +250,23 @@ declare namespace Adonis {
         }
     }
 
+    type HttpServer = any // node Server instance
+
+    class Server {
+        registerGlobal(middleware: string[]): Server
+        use(middleware: string[]): Server
+        registerNamed(middleware: {[key:string]:string}): Server
+        getInstance(): HttpServer
+        setInstance(httpInstance: HttpServer): void
+        handle(req: any, res: any): void
+        listen(host?: 'localhost', port?: 3333, callback?: Function): HttpServer
+        close(callback?: Function): void
+    }
+
+    class Session {
+        // TODO
+    }
+
     class View {
         engine: View.Engine
         global(name: string, value: any): void
@@ -211,33 +315,39 @@ declare namespace Adonis {
 }
 
 declare namespace AdonisNamespaces {
-    type Command = 'Command' | 'Adonis/Src/Command'
     type Config = 'Config' | 'Adonis/Src/Config'
     type Database = 'Database' | 'Adonis/Src/Database'
     type Env = 'Env' | 'Adonis/Src/Env'
     type Event = 'Event' | 'Adonis/Src/Event'
+    type Encryption = 'Encryption' | 'Adonis/Src/Encryption'
+    type Exception = 'Exception' | 'Adonis/Src/Exception'
     type Factory = 'Factory' | 'Adonis/Src/Factory'
     type Hash = 'Hash' | 'Adonis/Src/Hash'
     type Helpers = 'Helpers' | 'Adonis/Src/Helpers'
+    type Logger = 'Logger' | 'Adonis/Src/Logger'
     type Lucid = 'Lucid' | 'Adonis/Src/Lucid'
-    type Middleware = 'Middleware' | 'Adonis/Src/Middleware'
     type Route = 'Route' | 'Adonis/Src/Route'
     type Schema = 'Schema' | 'Adonis/Src/Schema'
+    type Server = 'Server' | 'Adonis/Src/Server'
     type View = 'View' | 'Adonis/Src/View'
     type Ws = 'Ws' | 'Adonis/Addons/Ws'
+    type Model = 'Model'
 }
 
-declare function use(namespace: AdonisNamespaces.Command): Adonis.WorkInProgress
 declare function use(namespace: AdonisNamespaces.Config): Adonis.Config
 declare function use(namespace: AdonisNamespaces.Database): Adonis.WorkInProgress
 declare function use(namespace: AdonisNamespaces.Env): Adonis.Env
-declare function use(namespace: AdonisNamespaces.Event): Adonis.WorkInProgress
+declare function use(namespace: AdonisNamespaces.Event): Adonis.Event
+declare function use(namespace: AdonisNamespaces.Encryption): Adonis.Encryption
+declare function use(namespace: AdonisNamespaces.Exception): Adonis.Exception
 declare function use(namespace: AdonisNamespaces.Factory): Adonis.WorkInProgress
 declare function use(namespace: AdonisNamespaces.Hash): Adonis.Hash
-declare function use(namespace: AdonisNamespaces.Helpers): Adonis.WorkInProgress
+declare function use(namespace: AdonisNamespaces.Helpers): Adonis.Helpers
+declare function use(namespace: AdonisNamespaces.Logger): Adonis.WorkInProgress
 declare function use(namespace: AdonisNamespaces.Lucid): Adonis.WorkInProgress
-declare function use(namespace: AdonisNamespaces.Middleware): Adonis.WorkInProgress
+declare function use(namespace: AdonisNamespaces.Model): Adonis.Lucid.Model
 declare function use(namespace: AdonisNamespaces.Route): Adonis.Route.Manager
 declare function use(namespace: AdonisNamespaces.Schema): Adonis.WorkInProgress
+declare function use(namespace: AdonisNamespaces.Server): Adonis.Server
 declare function use(namespace: AdonisNamespaces.View): Adonis.View
 declare function use(namespace: AdonisNamespaces.Ws): Adonis.WorkInProgress
